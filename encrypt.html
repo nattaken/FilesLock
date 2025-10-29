@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!-- ==== ส่วนหัวของเอกสาร ==== -->
+  <meta charset="UTF-8">                     <!-- รองรับภาษาไทยและอักขระพิเศษ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ทำให้หน้าเว็บแสดงผล responsive บนมือถือ -->
+
+  <title>FilesLock - เข้ารหัสไฟล์</title>
+
+  <!-- ==== ไลบรารีเข้ารหัส AES-256 (จาก CDN) ==== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <!-- ==== CSS พื้นฐาน (ไม่มี Tailwind) ==== -->
+  <style>
+    /* ---------- พื้นหลังและ layout ---------- */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;                     /* ให้กล่องอยู่กึ่งกลางหน้าจอ */
+    }
+
+    /* ---------- กล่องหลัก ---------- */
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    /* ---------- หัวข้อ ---------- */
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    /* ---------- Input ไฟล์และรหัสผ่าน ---------- */
+    input[type="file"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    /* ---------- ปุ่ม ---------- */
+    button, .nav-button {
+      background-color: #4CAF50;            /* เขียวสด */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    button:hover, .nav-button:hover {
+      background-color: #45a049;            /* เข้มขึ้นเมื่อ hover */
+    }
+
+    /* ---------- ข้อความแจ้งเตือน ---------- */
+    .error   { color: red;   margin-top: 10px; display: none; }
+    .success { color: green; margin-top: 10px; display: none; }
+
+    /* ---------- Responsive (มือถือ) ---------- */
+    @media (max-width: 600px) {
+      .container { padding: 15px; }
+      h1 { font-size: 20px; }
+      button, .nav-button { width: 100%; box-sizing: border-box; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ==== เนื้อหาหลัก ==== -->
+  <div class="container">
+    <h1>เข้ารหัสไฟล์</h1>
+
+    <!-- Input เลือกไฟล์ (ไม่เกิน 10MB) -->
+    <input type="file" id="file-input">
+
+    <!-- Input รหัสผ่าน (ต้อง ≥ 8 ตัวอักษร) -->
+    <input type="password" id="password-input" placeholder="ตั้งรหัสผ่าน (อย่างน้อย 8 ตัวอักษร)">
+
+    <!-- ปุ่มเรียกฟังก์ชันเข้ารหัส -->
+    <button onclick="encryptFile()">เข้ารหัส</button>
+
+    <!-- ลิงก์กลับหน้าหลัก -->
+    <a href="index.html" class="nav-button">กลับสู่หน้าหลัก</a>
+
+    <!-- แสดงข้อความ error -->
+    <p id="encrypt-error" class="error"></p>
+
+    <!-- แสดงข้อความ success (พร้อมรหัสผ่านให้คัดลอก) -->
+    <p id="encrypt-success" class="success"></p>
+  </div>
+
+  <!-- ==== JavaScript – กระบวนการเข้ารหัส ==== -->
+  <script>
+    // ---------- ฟังก์ชันแสดงข้อความแจ้งเตือน ----------
+    function showMessage(elementId, message, isError = true) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.style.display = 'block';
+      // ซ่อนอัตโนมัติหลัง 5 วินาที
+      setTimeout(() => { element.style.display = 'none'; }, 5000);
+    }
+
+    // ---------- ฟังก์ชันเข้ารหัสไฟล์ (async เพื่อรองรับ FileReader) ----------
+    async function encryptFile() {
+      // ดึงข้อมูลจาก input
+      const fileInput = document.getElementById('file-input');
+      const passwordInput = document.getElementById('password-input');
+      const file = fileInput.files[0];
+      const password = passwordInput.value.trim(); // ลบช่องว่างหน้า-หลัง
+
+      // ---------- ตรวจสอบ input ----------
+      if (!file || !password) {
+        showMessage('encrypt-error', 'กรุณาเลือกไฟล์และกรอกรหัสผ่าน');
+        return;
+      }
+      if (password.length < 8) {
+        showMessage('encrypt-error', 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB = 10 * 1024 * 1024 bytes
+        showMessage('encrypt-error', 'ไฟล์ใหญ่เกิน 10MB กรุณาเลือกไฟล์ที่เล็กลง');
+        return;
+      }
+
+      try {
+        // ---------- อ่านไฟล์เป็น ArrayBuffer ----------
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const fileData = e.target.result; // ข้อมูลไฟล์แบบไบนารี
+
+          // ---------- แปลงเป็น Base64 ----------
+          const base64Data = btoa(
+            new Uint8Array(fileData).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+
+          // ---------- เข้ารหัส Base64 ด้วย AES-256 ----------
+          const encrypted = CryptoJS.AES.encrypt(base64Data, password).toString();
+
+          // ---------- สร้างไฟล์ .locked ----------
+          const blob = new Blob([encrypted], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name + '.locked'; // ชื่อไฟล์ใหม่
+          a.click();                          // ดาวน์โหลดอัตโนมัติ
+          URL.revokeObjectURL(url);           // ลบ URL ชั่วคราว
+
+          // ---------- แจ้งสำเร็จ + แสดงรหัสผ่านให้คัดลอก ----------
+          showMessage('encrypt-success', 'เข้ารหัสสำเร็จ! คัดลอกรหัสผ่าน: ' + password, false);
+
+          // ล้าง input
+          fileInput.value = '';
+          passwordInput.value = '';
+        };
+
+        // เริ่มอ่านไฟล์
+        reader.readAsArrayBuffer(file);
+      } catch (error) {
+        // จัดการ error ที่ไม่คาดคิด
+        showMessage('encrypt-error', 'เกิดข้อผิดพลาดในการเข้ารหัส: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>

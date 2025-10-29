@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!-- ==== ส่วนหัวของเอกสาร ==== -->
+  <meta charset="UTF-8">                     <!-- รองรับอักษรไทยและอักขระพิเศษ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ทำให้หน้าเว็บแสดงผล responsive บนมือถือ -->
+
+  <title>FilesLock - เข้ารหัสไฟล์อย่างปลอดภัย</title>
+
+  <!-- ==== CSS พื้นฐาน (ไม่มี Tailwind) ==== -->
+  <style>
+    /* ---------- ตัวอักษรและพื้นหลัง ---------- */
+    body {
+      font-family: Arial, sans-serif;        /* ฟอนต์ที่อ่านง่าย */
+      margin: 0;                             /* ลบ margin เริ่มต้น */
+      padding: 20px;                         /* ช่องว่างรอบหน้า */
+      background-color: #f0f0f0;            /* สีพื้นหลังอ่อน */
+      display: flex;                         /* Flexbox เพื่อจัดกลาง */
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;                     /* ให้เนื้อหาอยู่กึ่งกลางหน้าจอ */
+    }
+
+    /* ---------- กล่องหลัก ---------- */
+    .container {
+      background-color: white;              /* พื้นหลังขาว */
+      padding: 20px;                         /* ช่องว่างภายใน */
+      border-radius: 8px;                    /* มุมโค้ง */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);/* เงาเบา ๆ */
+      width: 100%;                           /* ความกว้างเต็ม */
+      max-width: 500px;                      /* จำกัดความกว้างสูงสุด */
+      text-align: center;                    /* ข้อความอยู่กึ่งกลาง */
+    }
+
+    /* ---------- หัวข้อ ---------- */
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    /* ---------- ย่อหน้า ---------- */
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* ---------- ปุ่มนำทาง ---------- */
+    .nav-button {
+      background-color: #4CAF50;            /* เขียวสด */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+      text-decoration: none;                /* ลบขีดใต้ลิงก์ */
+      display: inline-block;
+    }
+    .nav-button:hover {
+      background-color: #45a049;            /* เข้มขึ้นเมื่อ hover */
+    }
+
+    /* ---------- Responsive (มือถือ) ---------- */
+    @media (max-width: 600px) {
+      .container { padding: 15px; }
+      h1 { font-size: 20px; }
+      .nav-button { width: 100%; box-sizing: border-box; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ==== เนื้อหาหลัก ==== -->
+  <div class="container">
+    <!-- หัวข้อต้อนรับ -->
+    <h1>ยินดีต้อนรับสู่ FilesLock</h1>
+
+    <!-- คำอธิบายสั้น ๆ (สอดคล้องกับหลักการทำงานล่าสุด) -->
+    <p>
+      เข้ารหัสไฟล์ด้วย AES-256 แบบ Client-Side (Base64 + AES) 
+      เพื่อส่งข้อมูลลับอย่างปลอดภัย<br>
+      <strong>ไฟล์ขนาด ≤ 10 MB</strong> – ต้องคัดลอกรหัสผ่านและส่งผ่านช่องทางที่เข้ารหัส (เช่น Signal)
+    </p>
+
+    <!-- ปุ่มไปหน้าเข้ารหัส -->
+    <a href="encrypt.html" class="nav-button">เข้ารหัสไฟล์</a>
+
+    <!-- ปุ่มไปหน้าถอดรหัส -->
+    <a href="decrypt.html" class="nav-button">ถอดรหัสไฟล์</a>
+  </div>
+</body>
+</html>
