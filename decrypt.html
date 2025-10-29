@@ -1,34 +1,117 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
+  <!-- ==== ส่วนหัวของเอกสาร ==== -->
+  <meta charset="UTF-8">                     <!-- รองรับภาษาไทยและอักขระพิเศษ -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ทำให้หน้าเว็บแสดงผล responsive บนมือถือ -->
+
   <title>FilesLock - ถอดรหัสไฟล์</title>
+
+  <!-- ==== ไลบรารีเข้ารหัส AES-256 (จาก CDN) ==== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <!-- ==== CSS พื้นฐาน (ไม่มี Tailwind) ==== -->
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
-    h1 { color: #333; font-size: 24px; margin-bottom: 20px; }
-    input[type="file"], input[type="password"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button, .nav-button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 10px; text-decoration: none; display: inline-block; }
-    button:hover, .nav-button:hover { background-color: #45a049; }
-    .error { color: red; margin-top: 10px; display: none; }
+    /* ---------- พื้นหลังและ layout ---------- */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;                     /* ให้กล่องอยู่กึ่งกลางหน้าจอ */
+    }
+
+    /* ---------- กล่องหลัก ---------- */
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    /* ---------- หัวข้อ ---------- */
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    /* ---------- Input ไฟล์และรหัสผ่าน ---------- */
+    input[type="file"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    /* ---------- ปุ่ม ---------- */
+    button, .nav-button {
+      background-color: #4CAF50;            /* เขียวสด */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    button:hover, .nav-button:hover {
+      background-color: #45a049;            /* เข้มขึ้นเมื่อ hover */
+    }
+
+    /* ---------- ข้อความแจ้งเตือน ---------- */
+    .error   { color: red;   margin-top: 10px; display: none; }
     .success { color: green; margin-top: 10px; display: none; }
-    @media (max-width: 600px) { .container { padding: 15px; } h1 { font-size: 20px; } button, .nav-button { width: 100%; box-sizing: border-box; } }
+
+    /* ---------- Responsive (มือถือ) ---------- */
+    @media (max-width: 600px) {
+      .container { padding: 15px; }
+      h1 { font-size: 20px; }
+      button, .nav-button { width: 100%; box-sizing: border-box; }
+    }
   </style>
 </head>
+
 <body>
+  <!-- ==== เนื้อหาหลัก ==== -->
   <div class="container">
+    <!-- หัวข้อหน้าถอดรหัส -->
     <h1>ถอดรหัสไฟล์</h1>
+
+    <!-- Input เลือกไฟล์ .locked เท่านั้น -->
     <input type="file" id="decrypt-file-input" accept=".locked">
+
+    <!-- Input รหัสผ่านที่ได้รับจากผู้ส่ง -->
     <input type="password" id="decrypt-password-input" placeholder="กรอกรหัสผ่าน">
+
+    <!-- ปุ่มเรียกฟังก์ชันถอดรหัส -->
     <button onclick="decryptFile()">ถอดรหัส</button>
+
+    <!-- ลิงก์กลับหน้าหลัก -->
     <a href="index.html" class="nav-button">กลับสู่หน้าหลัก</a>
+
+    <!-- แสดงข้อความ error -->
     <p id="decrypt-error" class="error"></p>
+
+    <!-- แสดงข้อความ success -->
     <p id="decrypt-success" class="success"></p>
   </div>
 
+  <!-- ==== JavaScript – กระบวนการถอดรหัส ==== -->
   <script>
+    // ---------- ฟังก์ชันแสดงข้อความแจ้งเตือน ----------
+    // แสดงข้อความ error หรือ success แล้วซ่อนอัตโนมัติหลัง 5 วินาที
     function showMessage(elementId, message, isError = true) {
       const element = document.getElementById(elementId);
       element.textContent = message;
@@ -36,57 +119,72 @@
       setTimeout(() => { element.style.display = 'none'; }, 5000);
     }
 
+    // ---------- ฟังก์ชันถอดรหัสไฟล์ ----------
     async function decryptFile() {
+      // ดึงข้อมูลจาก input
       const fileInput = document.getElementById('decrypt-file-input');
       const passwordInput = document.getElementById('decrypt-password-input');
       const file = fileInput.files[0];
-      const password = passwordInput.value.trim();
+      const password = passwordInput.value.trim(); // ลบช่องว่างหน้า-หลัง
 
+      // ---------- ตรวจสอบ input ----------
       if (!file || !password) {
         showMessage('decrypt-error', 'กรุณาเลือกไฟล์และกรอกรหัสผ่าน');
         return;
       }
 
       try {
+        // ---------- อ่านไฟล์ .locked เป็น ArrayBuffer ----------
         const reader = new FileReader();
         reader.onload = function(e) {
-          const encryptedData = e.target.result;
+          const encryptedData = e.target.result; // ข้อมูลไฟล์ที่เข้ารหัส
+
+          // ---------- แปลง ArrayBuffer → String ----------
           const textDecoder = new TextDecoder();
           const encryptedText = textDecoder.decode(encryptedData);
-          
+
           try {
-            // ถอดรหัส AES-256 ได้ Base64
+            // ---------- ถอดรหัส AES-256 → ได้ Base64 ----------
             const decrypted = CryptoJS.AES.decrypt(encryptedText, password);
             const base64Data = decrypted.toString(CryptoJS.enc.Utf8);
-            
+
+            // ตรวจสอบว่ารหัสผ่านถูกต้องหรือไม่
             if (!base64Data) {
               throw new Error('รหัสผ่านไม่ถูกต้อง');
             }
-            
-            // แปลง Base64 กลับเป็นไบนารี
+
+            // ---------- แปลง Base64 → ไบนารี ----------
             const binaryData = atob(base64Data);
             const byteArray = new Uint8Array(binaryData.length);
             for (let i = 0; i < binaryData.length; i++) {
               byteArray[i] = binaryData.charCodeAt(i);
             }
-            
+
+            // ---------- สร้างไฟล์ต้นฉบับ ----------
             const blob = new Blob([byteArray], { type: 'application/octet-stream' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = file.name.replace('.locked', '');
-            a.click();
-            URL.revokeObjectURL(url);
-            
+            a.download = file.name.replace('.locked', ''); // ลบ .locked ออก
+            a.click();                                     // ดาวน์โหลดอัตโนมัติ
+            URL.revokeObjectURL(url);                      // ลบ URL ชั่วคราว
+
+            // ---------- แจ้งสำเร็จ ----------
             showMessage('decrypt-success', 'ถอดรหัสสำเร็จ!', false);
+
+            // ล้าง input
             fileInput.value = '';
             passwordInput.value = '';
           } catch (error) {
+            // รหัสผ่านผิด → แจ้งเตือน
             showMessage('decrypt-error', 'ถอดรหัสล้มเหลว: รหัสผ่านไม่ถูกต้อง');
           }
         };
+
+        // เริ่มอ่านไฟล์
         reader.readAsArrayBuffer(file);
       } catch (error) {
+        // จัดการ error ที่ไม่คาดคิด
         showMessage('decrypt-error', 'เกิดข้อผิดพลาดในการถอดรหัส: ' + error.message);
       }
     }
