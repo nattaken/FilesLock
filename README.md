@@ -15,6 +15,8 @@ FilesLock หรือ เว็บไซต์เข้ารหัสไฟล
     
   - Netlify: แพลตฟอร์มโฮสต์เว็บไซต์แบบ static
 
+---
+
 - เครื่องมือพัฒนา
   - VS Code: เขียนและแก้ไขโค้ด
     
@@ -23,7 +25,8 @@ FilesLock หรือ เว็บไซต์เข้ารหัสไฟล
   - Git/GitHub: จัดการเวอร์ชันและเก็บโค้ด
     
   - Netlify: โฮสต์เว็บไซต์แบบ static พร้อม HTTPS
-    
+
+---
     
 - Web APIs
   - FileReader API: อ่านไฟล์ก่อนเข้ารหัส/ถอดรหัส
@@ -54,9 +57,7 @@ FilesLock หรือ เว็บไซต์เข้ารหัสไฟล
 
 ### 1. เข้าเว็บไซต์
 เปิดเบราว์เซอร์แล้วเข้า:  
-[https://your-fileslock.netlify.app](https://your-fileslock.netlify.app)
-
-> แทน `your-fileslock` ด้วยชื่อที่คุณตั้งใน Netlify
+[https://your-fileslock.netlify.app](https://fileslock-encrypt.netlify.app/)
 
 ---
 
@@ -72,7 +73,7 @@ FilesLock หรือ เว็บไซต์เข้ารหัสไฟล
 - ดาวน์โหลดอัตโนมัติ
 - แสดงรหัสผ่านให้คัดลอก
 
-> **คัดลอกรหัสผ่านไว้ทันที!**
+> **คัดลอกรหัสผ่านไว้ทันที! : @Example1234**
 
 ---
 
@@ -108,13 +109,30 @@ FilesLock หรือ เว็บไซต์เข้ารหัสไฟล
 
 ---
 
-# อ้างอิง
-- [คู่มือระบบบริหารความเสี่ยงทางการแพทย์ (กรมควบคุมโรค)](
-https://ddc.moph.go.th/uploads/ckeditor2//files/SP%20%E0%B8%84%E0%B8%B9%E0%B9%88%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%84%E0%B8%A7%E0%B8%B2%E0%B8%A1%E0%B9%80%E0%B8%AA%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%87.pdf)
+# แหล่งอ้างอิง
+1. **Brix.** (2021). *CryptoJS: A JavaScript library for cryptography.* GitHub.  
+   สืบค้นจาก [https://github.com/brix/crypto-js](https://github.com/brix/crypto-js)
 
-- [แนวทางการคัดกรองผู้ป่วยฉุกเฉิน (Emergency Triage)](
-https://skko.moph.go.th/dward/document_file/h_nikomnamoun/training_file_name/20230925100821_1483201537.pdf)
+2. **Mozilla Developer Network (MDN).** (2025). *FileReader - Web APIs.*  
+   สืบค้นจาก [https://developer.mozilla.org/en-US/docs/Web/API/FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
 
+3. **Mozilla Developer Network (MDN).** (2025). *Blob - Web APIs.*  
+   สืบค้นจาก [https://developer.mozilla.org/en-US/docs/Web/API/Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob)
+
+4. **Mozilla Developer Network (MDN).** (2025). *HTML: HyperText Markup Language.*  
+   สืบค้นจาก [https://developer.mozilla.org/en-US/docs/Web/HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+
+5. **Netlify.** (2025). *Netlify: Deploy modern static websites.*  
+   สืบค้นจาก [https://www.netlify.com](https://www.netlify.com)
+
+6. **GitHub.** (2025). *GitHub Pages: Websites for you and your projects.*  
+   สืบค้นจาก [https://pages.github.com](https://pages.github.com)
+
+7. **National Institute of Standards and Technology (NIST).** (2001). *Advanced Encryption Standard (AES).*  
+   สืบค้นจาก [https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197.pdf)
+
+---
 
 ผู้จัดทำ : นาย ณัฐภัทร บุญภิรมย์  
-Language: Python
+Github : nattaken
+Language: HTML, CSS, JAVASCRIPT
