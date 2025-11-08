@@ -140,5 +140,4 @@ FilesLock หรือ เว็บไซต์เข้ารหัสไฟล
 ---
 
 ผู้จัดทำ : นาย ณัฐภัทร บุญภิรมย์  
-Github : nattaken  
 Language: HTML, CSS, JAVASCRIPT
